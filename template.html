@@ -256,9 +256,10 @@
     background:var(--surface-2);
     border:1px solid var(--border);
   }
-  .window-item .wi-icon{width:20px;height:20px;flex:none;color:var(--accent);}
+  .window-item .wi-icon{width:20px;height:20px;flex:none;}
   .window-item .wi-time{font-family:"JetBrains Mono", monospace; font-weight:600; font-size:0.98rem; font-variant-numeric:tabular-nums;}
-  .window-item .wi-detail{font-size:0.78rem; color:var(--text-muted); margin-top:1px;}
+  .window-item .wi-risk{font-family:"Times New Roman",serif; font-weight:700; font-size:0.76rem; text-transform:uppercase; letter-spacing:0.04em; margin-left:6px;}
+  .window-item .wi-detail{font-size:0.78rem; color:var(--text-muted); margin-top:3px; max-width:44ch;}
   .no-window{font-size:0.88rem; color:var(--text-muted); background:var(--risk-3-soft); border:1px solid var(--risk-3); border-radius:6px; padding:12px 14px;}
 
   /* intro / landing section */
@@ -506,8 +507,8 @@
     </div>
 
     <div class="card best-card">
-      <h2>Melhores horários para atividades ao ar livre</h2>
-      <div class="sub" id="bestSub">Hoje e amanhã · considerando o período das 05h às 21h</div>
+      <h2>Horários para atividades ao ar livre</h2>
+      <div class="sub" id="bestSub">Hoje e amanhã, das 05h às 21h &mdash; todo horário é uma possibilidade, veja o risco e os cuidados de cada um</div>
       <div class="windows" id="windowsList"></div>
     </div>
   </div>
@@ -727,30 +728,55 @@ function fmtWindowEnd(startDate, endIdx){
   return fmtHour(nextTs);
 }
 
+// Every hour in the 05h–21h window gets grouped into a block, regardless of
+// risk level — hours with a higher heat index are still shown as an option,
+// just paired with the classification's own health-consequence warning, so
+// the person can decide instead of the card silently hiding them.
+function computeAllWindowsForDay(city, group){
+  const wins = [];
+  let cur = null;
+  group.idxs.forEach(idx=>{
+    const hour = parseInt(WEATHER_DATA.times[idx].slice(11,13), 10);
+    const awake = hour >= WAKING_START_HOUR && hour <= WAKING_END_HOUR;
+    if (!awake){ if (cur){ wins.push(cur); cur=null; } return; }
+    const hi = heatIndexC(city.t[idx], city.h[idx]);
+    const lvl = classify(hi);
+    if (!cur || cur.key !== lvl.key){
+      if (cur) wins.push(cur);
+      cur = { startIdx:idx, endIdx:idx, minHI:hi, maxHI:hi, key:lvl.key };
+    } else {
+      cur.endIdx = idx; cur.minHI = Math.min(cur.minHI,hi); cur.maxHI = Math.max(cur.maxHI,hi);
+    }
+  });
+  if (cur) wins.push(cur);
+  return wins;
+}
+
 function renderBestWindows(city){
   const container = document.getElementById('windowsList');
   container.innerHTML = '';
   const todayGroups = DAY_GROUPS.slice(0,2);
   let any = false;
   todayGroups.forEach((g,gi)=>{
-    const wins = windowsForDay(city, g);
+    const wins = computeAllWindowsForDay(city, g);
     if (wins.length===0) return;
-    any = true;
     const dayLabel = gi===0 ? 'Hoje' : 'Amanhã';
     wins.forEach(w=>{
       any = true;
+      const lvl = RISK_LEVELS[w.key];
       const startTs = WEATHER_DATA.times[w.startIdx];
       const endLabel = fmtWindowEnd(startTs.slice(0,10), w.endIdx);
       const div = document.createElement('div');
       div.className = 'window-item';
-      div.innerHTML = `<svg class="wi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-        <div><div class="wi-time">${dayLabel} · ${fmtHour(startTs)}–${endLabel}</div>
-        <div class="wi-detail">Índice de calor entre ${w.minHI.toFixed(0)}°C e ${w.maxHI.toFixed(0)}°C</div></div>`;
+      div.style.borderColor = lvl.key>=2 ? lvl.color : 'var(--border)';
+      div.innerHTML = `<svg class="wi-icon" viewBox="0 0 24 24" fill="none" stroke="${lvl.color}" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        <div><div class="wi-time">${dayLabel} · ${fmtHour(startTs)}–${endLabel} <span class="wi-risk" style="color:${lvl.color}">${lvl.short}</span></div>
+        <div class="wi-detail">${lvl.desc}</div></div>`;
       container.appendChild(div);
     });
   });
   if (!any){
-    container.innerHTML = '<div class="no-window">Nenhuma janela de baixo risco identificada para hoje/amanhã nesta cidade &mdash; prefira atividades internas ou de curtíssima duração bem hidratado.</div>';
+    container.innerHTML = '<div class="no-window">Sem dados de horário para hoje/amanhã nesta cidade.</div>';
   }
 }
 
