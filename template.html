@@ -261,6 +261,44 @@
   .window-item .wi-detail{font-size:0.78rem; color:var(--text-muted); margin-top:1px;}
   .no-window{font-size:0.88rem; color:var(--text-muted); background:var(--risk-3-soft); border:1px solid var(--risk-3); border-radius:6px; padding:12px 14px;}
 
+  /* intro / landing section */
+  #heroSection.js-hidden, #timelineSection.js-hidden{display:none;}
+  section.intro{margin-bottom:20px;}
+  section.intro.js-hidden{display:none;}
+  .intro-card{
+    background:linear-gradient(155deg, var(--accent-soft) 0%, var(--surface) 55%);
+    border-color:var(--border);
+  }
+  .intro-card h2{font-size:1.55rem; max-width:34ch; margin-bottom:14px;}
+  .intro-lead{font-size:0.96rem; color:var(--text-muted); max-width:68ch; margin:0 0 22px;}
+  .intro-lead strong{color:var(--text);}
+  .intro-features{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:16px;
+    padding:18px 0;
+    margin-bottom:22px;
+    border-top:1px solid var(--border);
+    border-bottom:1px solid var(--border);
+  }
+  @media (max-width:640px){ .intro-features{grid-template-columns:1fr;} }
+  .intro-feature{display:flex; flex-direction:column; gap:3px;}
+  .if-num{font-family:"JetBrains Mono",monospace; font-size:1.6rem; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums;}
+  .if-label{font-size:0.8rem; color:var(--text-muted);}
+  .intro-cta p{font-size:0.86rem; color:var(--text-muted); margin:0 0 10px;}
+  .intro-chips{display:flex; flex-wrap:wrap; gap:8px;}
+  .intro-chip{
+    font-family:"Times New Roman", Times, Georgia, serif;
+    font-size:0.88rem;
+    color:var(--accent-strong);
+    background:var(--surface);
+    border:1px solid var(--accent);
+    border-radius:999px;
+    padding:7px 16px;
+    cursor:pointer;
+  }
+  .intro-chip:hover{background:var(--accent-soft);}
+
   /* timeline section */
   section.timeline{margin-bottom:20px;}
   section.timeline h2{font-size:1.15rem; font-weight:600; margin-bottom:4px;}
@@ -418,7 +456,32 @@
     </div>
   </header>
 
-  <div class="hero">
+  <section class="intro" id="introSection">
+    <div class="card intro-card">
+      <h2>Escolha o horário certo para treinar, não só o dia certo</h2>
+      <p class="intro-lead">Calor e umidade juntos podem transformar uma corrida comum em um risco à saúde. O <strong>Weather and Running</strong> calcula o índice de calor hora a hora &mdash; a mesma métrica usada pelo Serviço Meteorológico dos EUA (NWS), com base nos estudos de Steadman (1979) e Rothfusz (1990) &mdash; para apontar exatamente quais janelas do dia são seguras para atividade física ao ar livre, cidade por cidade, em todo o Mato Grosso.</p>
+      <div class="intro-features">
+        <div class="intro-feature">
+          <span class="if-num">142</span>
+          <span class="if-label">municípios de MT com previsão própria</span>
+        </div>
+        <div class="intro-feature">
+          <span class="if-num">7 dias</span>
+          <span class="if-label">de previsão horária de temperatura e umidade</span>
+        </div>
+        <div class="intro-feature">
+          <span class="if-num">05h&ndash;21h</span>
+          <span class="if-label">janela avaliada para encontrar o melhor horário</span>
+        </div>
+      </div>
+      <div class="intro-cta">
+        <p>Busque sua cidade no campo acima, ou comece por uma destas:</p>
+        <div class="intro-chips" id="introChips"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="hero js-hidden" id="heroSection">
     <div class="card status-card">
       <div class="loc">Condições agora</div>
       <div class="locname" id="statLoc">—</div>
@@ -448,7 +511,7 @@
     </div>
   </div>
 
-  <section class="timeline">
+  <section class="timeline js-hidden" id="timelineSection">
     <h2>Previsão de 7 dias &mdash; risco térmico por horário</h2>
     <div class="sub">Passe o cursor sobre um bloco para ver temperatura, umidade e índice de calor daquela hora.</div>
     <div class="card" style="padding:16px 20px;">
@@ -546,10 +609,32 @@ function initCityPicker(){
   searchEl.addEventListener('blur', ()=>setTimeout(()=>listEl.classList.remove('open'), 150));
   renderOptions('');
 
-  let start = findCityIndexByName('Cuiabá');
-  if (start < 0) start = 0;
-  searchEl.value = WEATHER_DATA.cities[start].n;
-  selectCity(start);
+  initIntroChips(searchEl);
+}
+
+function initIntroChips(searchEl){
+  const wanted = ['Cuiabá','Várzea Grande','Rondonópolis','Sinop','Sorriso','Tangará da Serra','Barra do Garças','Cáceres'];
+  const chipsEl = document.getElementById('introChips');
+  chipsEl.innerHTML = '';
+  wanted.forEach(name=>{
+    const idx = findCityIndexByName(name);
+    if (idx < 0) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'intro-chip';
+    btn.textContent = name;
+    btn.addEventListener('click', ()=>{
+      searchEl.value = name;
+      selectCity(idx);
+    });
+    chipsEl.appendChild(btn);
+  });
+}
+
+function revealCityView(){
+  document.getElementById('introSection').classList.add('js-hidden');
+  document.getElementById('heroSection').classList.remove('js-hidden');
+  document.getElementById('timelineSection').classList.remove('js-hidden');
 }
 
 function nearestHourIndex(){
@@ -563,6 +648,7 @@ function nearestHourIndex(){
 }
 
 function selectCity(i){
+  revealCityView();
   state.cityIndex = i;
   const city = WEATHER_DATA.cities[i];
   document.getElementById('statLoc').textContent = city.n;
