@@ -27,6 +27,8 @@
     --risk-3-soft:#F7D9D2;
     --risk-4:#6E1420;
     --risk-4-soft:#EFCED0;
+    --sun-glow: rgba(229,165,56,0.30);
+    --lift: 0 2px 4px rgba(22,33,44,0.06), 0 12px 28px -14px rgba(22,33,44,0.28);
     --shadow: 0 1px 2px rgba(22,33,44,0.05), 0 4px 14px -8px rgba(22,33,44,0.14);
   }
   :root:not([data-theme="light"]){
@@ -53,11 +55,14 @@
       --risk-3-soft:#3E1F1B;
       --risk-4:#FF6B6F;
       --risk-4-soft:#3B1A1E;
+      --sun-glow: rgba(240,184,77,0.17);
+      --lift: 0 2px 4px rgba(0,0,0,0.35), 0 14px 32px -14px rgba(0,0,0,0.62);
       --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px -10px rgba(0,0,0,0.5);
     }
   }
   :root[data-theme="dark"]{
     --bg:#0E141C;
+    --bg-top:#1C2A44;
     --surface:#161F29;
     --surface-2:#1C2732;
     --border:#2C3A47;
@@ -78,6 +83,8 @@
     --risk-3-soft:#3E1F1B;
     --risk-4:#FF6B6F;
     --risk-4-soft:#3B1A1E;
+    --sun-glow: rgba(240,184,77,0.17);
+    --lift: 0 2px 4px rgba(0,0,0,0.35), 0 14px 32px -14px rgba(0,0,0,0.62);
     --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px -10px rgba(0,0,0,0.5);
   }
 
@@ -105,8 +112,14 @@
   button{font-family:inherit;}
 
   .topbar{
-    height:5px;
-    background:var(--accent);
+    height:6px;
+    background:linear-gradient(90deg,
+      var(--risk-0) 0%,
+      var(--risk-0) 18%,
+      var(--risk-1) 38%,
+      var(--risk-2) 58%,
+      var(--risk-3) 78%,
+      var(--risk-4) 100%);
   }
 
   .wrap{
@@ -126,13 +139,25 @@
     border-bottom:1px solid var(--border);
     margin-bottom:28px;
   }
-  .brand{display:flex; align-items:center; gap:14px;}
+  .brand{display:flex; align-items:center; gap:15px;}
   .brand-mark{
-    width:48px;height:48px;flex:none;
+    width:56px;height:56px;flex:none;
   }
-  .brand-text h1{font-size:2rem; font-weight:700; color:var(--text); letter-spacing:-0.01em;}
-  .brand-text h1 .accent-word{color:var(--accent);}
-  .brand-text .tag{font-size:0.84rem; color:var(--text-muted); margin-top:3px; font-style:italic;}
+  .brand-text h1{
+    font-size:clamp(2rem, 3.4vw, 2.5rem);
+    font-weight:700;
+    color:var(--text);
+    letter-spacing:-0.018em;
+    line-height:1.04;
+  }
+  .brand-text h1 .accent-word{color:var(--accent); font-style:italic;}
+  .brand-text .tag{
+    font-size:0.8rem;
+    color:var(--text-muted);
+    margin-top:5px;
+    font-style:italic;
+    letter-spacing:0.01em;
+  }
 
   .city-picker{
     display:flex;
@@ -207,6 +232,19 @@
     box-shadow:var(--shadow);
   }
 
+  .status-card{
+    position:relative;
+    overflow:hidden;
+    box-shadow:var(--lift);
+  }
+  .status-card::before{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0;
+    height:4px;
+    background:var(--risk-now, var(--accent));
+  }
+  .status-card .locname{letter-spacing:-0.015em;}
   .status-card .loc{
     font-size:0.78rem;
     text-transform:uppercase;
@@ -249,17 +287,29 @@
   .windows{display:flex; flex-direction:column; gap:10px;}
   .window-item{
     display:flex;
-    align-items:center;
+    align-items:flex-start;
     gap:12px;
-    padding:11px 13px;
+    padding:12px 14px;
     border-radius:6px;
     background:var(--surface-2);
     border:1px solid var(--border);
+    border-left-width:4px;
   }
-  .window-item .wi-icon{width:20px;height:20px;flex:none;}
+  .window-item .wi-icon{width:20px;height:20px;flex:none; margin-top:2px;}
+  .wi-head{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
   .window-item .wi-time{font-family:"JetBrains Mono", monospace; font-weight:600; font-size:0.98rem; font-variant-numeric:tabular-nums;}
-  .window-item .wi-risk{font-family:"Times New Roman",serif; font-weight:700; font-size:0.76rem; text-transform:uppercase; letter-spacing:0.04em; margin-left:6px;}
-  .window-item .wi-detail{font-size:0.78rem; color:var(--text-muted); margin-top:3px; max-width:44ch;}
+  .window-item .wi-risk{
+    font-family:"Times New Roman",serif;
+    font-weight:700;
+    font-size:0.72rem;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    white-space:nowrap;
+    padding:3px 10px;
+    border-radius:999px;
+    line-height:1.3;
+  }
+  .window-item .wi-detail{font-size:0.78rem; color:var(--text-muted); margin-top:5px; max-width:44ch;}
   .no-window{font-size:0.88rem; color:var(--text-muted); background:var(--risk-3-soft); border:1px solid var(--risk-3); border-radius:6px; padding:12px 14px;}
 
   /* intro / landing section */
@@ -267,38 +317,118 @@
   section.intro{margin-bottom:20px;}
   section.intro.js-hidden{display:none;}
   .intro-card{
-    background:linear-gradient(155deg, var(--accent-soft) 0%, var(--surface) 55%);
+    position:relative;
+    overflow:hidden;
+    background:linear-gradient(158deg, var(--accent-soft) 0%, var(--surface) 54%);
     border-color:var(--border);
+    box-shadow:var(--lift);
+    padding:34px 34px 30px;
   }
-  .intro-card h2{font-size:1.55rem; max-width:34ch; margin-bottom:14px;}
-  .intro-lead{font-size:0.96rem; color:var(--text-muted); max-width:68ch; margin:0 0 22px;}
+  @media (max-width:640px){ .intro-card{padding:26px 20px 24px;} }
+  .intro-glow{
+    position:absolute;
+    top:-170px; right:-130px;
+    width:440px; height:440px;
+    border-radius:50%;
+    background:radial-gradient(circle, var(--sun-glow) 0%, transparent 68%);
+    pointer-events:none;
+  }
+  .intro-inner{position:relative;}
+
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:9px;
+    font-family:"JetBrains Mono", ui-monospace, monospace;
+    font-size:0.68rem;
+    text-transform:uppercase;
+    letter-spacing:0.11em;
+    color:var(--accent-strong);
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:999px;
+    padding:6px 15px;
+    margin-bottom:20px;
+  }
+  .eb-dot{
+    width:7px;height:7px;border-radius:50%;flex:none;
+    background:var(--risk-2);
+    animation:ebPulse 2.6s ease-out infinite;
+  }
+  @keyframes ebPulse{
+    0%{box-shadow:0 0 0 0 var(--risk-2); opacity:1;}
+    70%{box-shadow:0 0 0 7px transparent; opacity:0.75;}
+    100%{box-shadow:0 0 0 0 transparent; opacity:1;}
+  }
+
+  .intro-title{
+    font-size:clamp(2.15rem, 5.4vw, 3.5rem);
+    line-height:1.05;
+    letter-spacing:-0.022em;
+    max-width:19ch;
+    margin-bottom:18px;
+  }
+  .intro-title .accent-word{color:var(--accent); font-style:italic;}
+
+  .intro-lead{font-size:1rem; color:var(--text-muted); max-width:64ch; margin:0 0 26px; line-height:1.62;}
   .intro-lead strong{color:var(--text);}
+
   .intro-features{
     display:grid;
     grid-template-columns:repeat(3, 1fr);
-    gap:16px;
-    padding:18px 0;
-    margin-bottom:22px;
+    gap:18px;
+    padding:20px 0;
+    margin-bottom:24px;
     border-top:1px solid var(--border);
     border-bottom:1px solid var(--border);
   }
-  @media (max-width:640px){ .intro-features{grid-template-columns:1fr;} }
-  .intro-feature{display:flex; flex-direction:column; gap:3px;}
-  .if-num{font-family:"JetBrains Mono",monospace; font-size:1.6rem; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums;}
-  .if-label{font-size:0.8rem; color:var(--text-muted);}
-  .intro-cta p{font-size:0.86rem; color:var(--text-muted); margin:0 0 10px;}
-  .intro-chips{display:flex; flex-wrap:wrap; gap:8px;}
+  @media (max-width:640px){ .intro-features{grid-template-columns:1fr; gap:14px;} }
+  .intro-feature{display:flex; flex-direction:column; gap:4px;}
+  .if-num{
+    font-family:"JetBrains Mono",monospace;
+    font-size:1.9rem;
+    font-weight:700;
+    color:var(--accent);
+    font-variant-numeric:tabular-nums;
+    line-height:1.1;
+    letter-spacing:-0.02em;
+  }
+  .if-label{font-size:0.8rem; color:var(--text-muted); line-height:1.45;}
+
+  .intro-cta p{font-size:0.88rem; color:var(--text-muted); margin:0 0 12px;}
+  .intro-chips{display:flex; flex-wrap:wrap; gap:9px;}
   .intro-chip{
     font-family:"Times New Roman", Times, Georgia, serif;
-    font-size:0.88rem;
+    font-size:0.92rem;
     color:var(--accent-strong);
     background:var(--surface);
     border:1px solid var(--accent);
     border-radius:999px;
-    padding:7px 16px;
+    padding:8px 18px;
     cursor:pointer;
+    transition:background .18s ease, transform .18s ease, box-shadow .18s ease;
   }
-  .intro-chip:hover{background:var(--accent-soft);}
+  .intro-chip:hover{
+    background:var(--accent-soft);
+    transform:translateY(-2px);
+    box-shadow:var(--shadow);
+  }
+  .intro-chip:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+
+  /* entrance motion */
+  @keyframes riseIn{
+    from{opacity:0; transform:translateY(16px);}
+    to{opacity:1; transform:none;}
+  }
+  .intro-inner > *{animation:riseIn .68s cubic-bezier(.2,.75,.3,1) backwards;}
+  .intro-inner > *:nth-child(1){animation-delay:.04s;}
+  .intro-inner > *:nth-child(2){animation-delay:.12s;}
+  .intro-inner > *:nth-child(3){animation-delay:.20s;}
+  .intro-inner > *:nth-child(4){animation-delay:.28s;}
+  .intro-inner > *:nth-child(5){animation-delay:.36s;}
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important; transition:none !important;}
+  }
 
   /* timeline section */
   section.timeline{margin-bottom:20px;}
@@ -460,25 +590,29 @@
 
   <section class="intro" id="introSection">
     <div class="card intro-card">
-      <h2>Escolha o horário certo para treinar, não só o dia certo</h2>
-      <p class="intro-lead">Calor e umidade juntos podem transformar uma corrida comum em um risco à saúde. O <strong>Weather and Running</strong> calcula o índice de calor hora a hora &mdash; a mesma métrica usada pelo Serviço Meteorológico dos EUA (NWS), com base nos estudos de Steadman (1979) e Rothfusz (1990) &mdash; para apontar exatamente quais janelas do dia são seguras para atividade física ao ar livre, cidade por cidade, em todo o Mato Grosso.</p>
-      <div class="intro-features">
-        <div class="intro-feature">
-          <span class="if-num">142</span>
-          <span class="if-label">municípios de MT com previsão própria</span>
+      <div class="intro-glow" aria-hidden="true"></div>
+      <div class="intro-inner">
+        <div class="eyebrow"><span class="eb-dot" aria-hidden="true"></span>Índice de calor hora a hora &middot; Mato Grosso</div>
+        <h2 class="intro-title">O calor não avisa.<br><span class="accent-word">A gente avisa.</span></h2>
+        <p class="intro-lead">Em Mato Grosso, temperatura e umidade juntas podem transformar uma corrida comum em risco real à saúde &mdash; e a diferença entre um treino seguro e um treino perigoso costuma ser de apenas <strong>duas horas no relógio</strong>. O <strong>Weather and Running</strong> calcula o índice de calor de hora em hora, nos próximos 7 dias, e mostra exatamente quando sair de casa.</p>
+        <div class="intro-features">
+          <div class="intro-feature">
+            <span class="if-num">142</span>
+            <span class="if-label">municípios de MT com previsão própria</span>
+          </div>
+          <div class="intro-feature">
+            <span class="if-num">7 dias</span>
+            <span class="if-label">de previsão horária de temperatura e umidade</span>
+          </div>
+          <div class="intro-feature">
+            <span class="if-num">05h&ndash;21h</span>
+            <span class="if-label">janela avaliada para encontrar o melhor horário</span>
+          </div>
         </div>
-        <div class="intro-feature">
-          <span class="if-num">7 dias</span>
-          <span class="if-label">de previsão horária de temperatura e umidade</span>
+        <div class="intro-cta">
+          <p>Busque sua cidade no campo acima, ou comece por uma destas:</p>
+          <div class="intro-chips" id="introChips"></div>
         </div>
-        <div class="intro-feature">
-          <span class="if-num">05h&ndash;21h</span>
-          <span class="if-label">janela avaliada para encontrar o melhor horário</span>
-        </div>
-      </div>
-      <div class="intro-cta">
-        <p>Busque sua cidade no campo acima, ou comece por uma destas:</p>
-        <div class="intro-chips" id="introChips"></div>
       </div>
     </div>
   </section>
@@ -665,6 +799,7 @@ function selectCity(i){
   const badge = document.getElementById('statBadge');
   badge.style.color = lvl.color;
   badge.style.background = lvl.soft;
+  document.querySelector('.status-card').style.setProperty('--risk-now', lvl.color);
   document.getElementById('statBadgeText').textContent = lvl.label;
   document.getElementById('statAdvice').textContent = lvl.desc;
   const timeLabel = WEATHER_DATA.times[hourIdx].replace('T',' ') + ' (hora local de Cuiabá)';
@@ -768,9 +903,9 @@ function renderBestWindows(city){
       const endLabel = fmtWindowEnd(startTs.slice(0,10), w.endIdx);
       const div = document.createElement('div');
       div.className = 'window-item';
-      div.style.borderColor = lvl.key>=2 ? lvl.color : 'var(--border)';
+      div.style.borderLeftColor = lvl.color;
       div.innerHTML = `<svg class="wi-icon" viewBox="0 0 24 24" fill="none" stroke="${lvl.color}" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-        <div><div class="wi-time">${dayLabel} · ${fmtHour(startTs)}–${endLabel} <span class="wi-risk" style="color:${lvl.color}">${lvl.label}</span></div>
+        <div><div class="wi-head"><span class="wi-time">${dayLabel} · ${fmtHour(startTs)}–${endLabel}</span><span class="wi-risk" style="color:${lvl.color};background:${lvl.soft}">${lvl.label}</span></div>
         <div class="wi-detail">${lvl.desc}</div></div>`;
       container.appendChild(div);
     });
