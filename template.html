@@ -536,7 +536,7 @@
     <h3>Escolhendo o horário do treino</h3>
     <p>Priorize sempre a primeira janela de "Melhor horário" do dia, normalmente entre o amanhecer e o meio da manhã &mdash; é onde o corpo dissipa calor com mais eficiência. Se sua rotina só permite treinar à tarde ou à noite, confira se existe uma segunda janela: em boa parte dos dias ela aparece perto do pôr do sol, ainda que mais curta.</p>
 
-    <h3>Nos dias de risco elevado, perigo ou perigo extremo</h3>
+    <h3>Nos dias de cautela extrema, perigo ou perigo extremo</h3>
     <p>Se o único horário disponível na sua agenda cair fora das janelas seguras, três opções ajudam a reduzir o risco: treinar em ambiente coberto ou climatizado, reduzir bastante a intensidade e a duração do treino, ou simplesmente adiar para o dia seguinte e checar a previsão de novo. Hidrate-se antes, durante e depois &mdash; mesmo nos dias classificados como seguros.</p>
   </section>
 
@@ -770,7 +770,7 @@ function renderBestWindows(city){
       div.className = 'window-item';
       div.style.borderColor = lvl.key>=2 ? lvl.color : 'var(--border)';
       div.innerHTML = `<svg class="wi-icon" viewBox="0 0 24 24" fill="none" stroke="${lvl.color}" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-        <div><div class="wi-time">${dayLabel} · ${fmtHour(startTs)}–${endLabel} <span class="wi-risk" style="color:${lvl.color}">${lvl.short}</span></div>
+        <div><div class="wi-time">${dayLabel} · ${fmtHour(startTs)}–${endLabel} <span class="wi-risk" style="color:${lvl.color}">${lvl.label}</span></div>
         <div class="wi-detail">${lvl.desc}</div></div>`;
       container.appendChild(div);
     });
@@ -834,7 +834,7 @@ function hideTooltip(){ document.getElementById('tooltip').style.display = 'none
 
 function renderLegend(){
   const el = document.getElementById('legend');
-  el.innerHTML = RISK_LEVELS.map(l=>`<div class="legend-item"><span class="legend-sw" style="background:${l.color}"></span>${l.short}</div>`).join('');
+  el.innerHTML = RISK_LEVELS.map(l=>`<div class="legend-item"><span class="legend-sw" style="background:${l.color}"></span>${l.label}</div>`).join('');
 }
 
 function renderClassTable(){
